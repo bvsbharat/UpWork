@@ -2,23 +2,17 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getJobs, deleteNewJob } from "../redux/action";
 import { Layout, JobsList, Header, ActiveJobs } from "../components";
+import { server } from "../config";
 
-export default function Dashboard() {
-    const dispatch = useDispatch();
 
-    const jobs = useSelector((state) => state.jobs);
-
-    useEffect(() => {
-        dispatch(getJobs());
-        console.log("feached");
-    }, []);
+export default function Dashboard({ jobs }) {
 
     const getActiveJobs = (jobList) => {
         return jobList.sort((a, b) => b.bids.length - a.bids.length);
     };
 
     const handleDelete = (id) => {
-        dispatch(deleteNewJob(id));
+        console.log(id);
     };
 
     return (
@@ -39,3 +33,16 @@ export default function Dashboard() {
         </Layout>
     );
 }
+
+
+
+export async function  getStaticProps() {
+    const jobs = await fetch(`${server}/api/jobs`).then(res => res.json());
+    return {
+        props: {
+            jobs: jobs.data,
+        },
+        revalidate: 1000, // In seconds
+    };
+}
+
